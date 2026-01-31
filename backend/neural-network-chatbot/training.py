@@ -2,9 +2,15 @@ import random
 import json
 import numpy as np
 import pickle
-
+import os
 import nltk
 from nltk.stem import WordNetLemmatizer
+
+import nltk
+nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
+nltk.download('wordnet', quiet=True)
+
 
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Activation, Dropout
@@ -12,7 +18,10 @@ from tensorflow.keras.optimizers import SGD
 
 lemmatizer = WordNetLemmatizer()
 
-intents = json.loads(open('intents.json').read())
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+intents_path = os.path.join(BASE_DIR, 'intents.json')
+
+intents = json.loads(open(intents_path).read())
 
 words = []
 classes = []
@@ -82,6 +91,7 @@ model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['accuracy
 
 
 hist = model.fit(np.array(train_x), np.array(train_y), epochs=200, batch_size=5, verbose=1)
-model.save('chatbot_model.h5')
+model.save('chatbot_model.keras')
+
 
 print('Done!')
