@@ -81,13 +81,39 @@ function Dashboard() {
     fetchMonthly();
     fetchAlerts();
     fetchTasks();
+    fetchGrievances();
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("isAuthenticated");
     navigate("/admin/login");
   };
+  const fetchGrievances = async () => {
+  try {
+    const res = await axios.get(`${API}/api/admin-dashboard/grievances`);
+    setGrievances(res.data);
+  } catch (err) {
+    console.error("Error fetching grievances", err);
+  }
+};
+  const [grievances, setGrievances] = useState([]);
 
+const todayGrievances = grievances.filter((g) => {
+  if (!g.createdAt) return false;
+
+  const grievanceDate = new Date(g.createdAt).toDateString();
+  const todayDate = new Date().toDateString();
+
+  return grievanceDate === todayDate;
+});
+const monthGrievances = grievances.filter((g) => {
+  if (!g.createdAt) return false;
+
+  const grievancemonth = new Date(g.createdAt).getMonth();
+  const currentMonth = new Date().getMonth();
+
+  return grievancemonth === currentMonth;
+});
   return (
     <>
       <div className="min-h-screen bg-[#f6f7fb] p-6">
@@ -125,19 +151,19 @@ function Dashboard() {
           <div className="mt-4 flex justify-between">
             <div>
               <p className="text-lg">
-                New Grievances: <span className="text-purple-400 font-bold">12</span>
+                New Grievances in {new Date().toLocaleString('default', { month: 'long' })}: <span className="text-purple-400 font-bold">{monthGrievances.length} </span>
               </p>
-              <p className="text-xs">+2 today</p>
+              <p className="text-xs">+{todayGrievances.length} today</p>
             </div>
             <div>
               <p className="text-lg">
-                Pending Actions: <span className="text-yellow-300 font-bold">5</span>
+                Pending Actions: <span className="text-yellow-300 font-bold">{stats.pending}</span>
               </p>
               <p className="text-xs">3 urgent</p>
             </div>
             <div>
               <p className="text-lg">
-                Resolved Today: <span className="text-green-400 font-bold">8</span>
+                Resolved Today: <span className="text-green-400 font-bold">{stats.resolved}</span>
               </p>
               <p className="text-xs">94% success</p>
             </div>
@@ -250,6 +276,7 @@ function Dashboard() {
       
       <Routes>
         <Route path="/admin/dashboard/Grievances" element={<GrievancesDashboard />} />
+        
         <Route path="/admin/dashboard/announcements" element={<Announcements/>}/>
       </Routes>
     </>
