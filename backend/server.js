@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import path from "path";
 import { connectDB } from "./config/db.js";
 import { verifyToken } from "./middleware/auth.js";
+import chatbotRoutes from "./routes/chatbot.js";
 
 import grievanceRoutes from "./routes/grievance.js";
 import adminAuthRoutes from "./routes/adminAUth.js";
@@ -46,6 +47,7 @@ app.use("/api/grievance", grievanceRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/department-dashboard", dashboardRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 
  app.listen(process.env.PORT || 5000, () =>
