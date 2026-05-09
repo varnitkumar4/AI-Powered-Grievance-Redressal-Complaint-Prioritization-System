@@ -1,19 +1,16 @@
 import { useState, useEffect } from "react";
 
-// Safe API URL definition
 const API = "http://localhost:5000";
 
 export default function TrackGrievance() {
   const [inputId, setInputId] = useState("");
   const [grievance, setGrievance] = useState(null);
   const [error, setError] = useState("");
-  
-  // New state for user history
+
   const [myGrievances, setMyGrievances] = useState([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Check login status on mount
   useEffect(() => {
     const storedUser = localStorage.getItem("citizen");
     if (storedUser) {
@@ -37,7 +34,7 @@ export default function TrackGrievance() {
       if (res.ok) {
         setMyGrievances(data.grievanceList || []);
       }
-    } catch (err) {
+    } catch {
       console.error("Failed to fetch history");
     } finally {
       setLoadingHistory(false);
@@ -57,77 +54,94 @@ export default function TrackGrievance() {
       } else {
         setError(data.error || "Grievance not found");
       }
-    } catch (err) {
+    } catch {
       setError("An error occurred while fetching the grievance");
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Resolved": return "bg-green-100 text-green-800 border-green-200";
-      case "Rejected": return "bg-red-100 text-red-800 border-red-200";
-      case "Processing": return "bg-blue-100 text-blue-800 border-blue-200";
-      default: return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "Resolved":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "Rejected":
+        return "bg-red-100 text-red-800 border-red-200";
+      case "Processing":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      default:
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 px-4 mb-20">
-      
-      {/* 1. Main Search Section */}
-      <div className="bg-white p-8 rounded-xl shadow-lg border border-gray-100 mb-10">
-        <h2 className="text-2xl font-bold mb-2 text-center text-gray-800">Track Your Grievance</h2>
-        <p className="text-gray-500 text-center mb-6 text-sm">Enter a specific Tracking ID to see its live status</p>
+    <div className="max-w-5xl mx-auto px-4 mt-10 mb-24 space-y-12">
 
-        <div className="flex flex-col sm:flex-row items-center gap-3 max-w-lg mx-auto">
+      {/* 🔍 TRACK SECTION */}
+      <div className="rounded-2xl p-8 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 shadow-lg">
+        <h2 className="text-3xl font-extrabold text-center text-gray-800">
+          🔎 Track Your Grievance
+        </h2>
+        <p className="text-center text-gray-600 mt-2 text-sm">
+          Enter your tracking ID to check the latest status
+        </p>
+
+        <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-xl mx-auto">
           <input
-            placeholder="e.g. GRV-123456"
+            placeholder="GRV-XXXXXX"
             value={inputId}
             onChange={(e) => setInputId(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"
           />
           <button
             onClick={handleSearch}
-            className="w-full sm:w-auto py-3 px-8 rounded-lg font-semibold transition duration-300 bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+            className="px-8 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition shadow"
           >
-            Search
+            Track Now
           </button>
         </div>
 
-        {/* Search Results */}
         {error && (
-          <div className="mt-6 p-4 bg-red-50 text-red-700 border border-red-100 rounded-lg text-center animate-pulse">
-            {error}
+          <div className="mt-6 bg-red-50 text-red-700 border border-red-200 rounded-xl p-4 text-center">
+            ❌ {error}
           </div>
         )}
 
         {grievance && (
-          <div className="mt-8 border border-gray-200 rounded-xl overflow-hidden shadow-sm">
-            <div className="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center">
-              <span className="font-mono font-bold text-gray-600">#{grievance.trackingId}</span>
-              <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(grievance.status)}`}>
+          <div className="mt-8 bg-white rounded-2xl border shadow-sm overflow-hidden">
+            <div className="flex justify-between items-center p-4 bg-gray-50 border-b">
+              <span className="font-mono font-bold text-gray-600">
+                #{grievance.trackingId}
+              </span>
+              <span
+                className={`px-4 py-1 rounded-full text-xs font-bold border ${getStatusColor(
+                  grievance.status
+                )}`}
+              >
                 {grievance.status}
               </span>
             </div>
-            <div className="p-6 bg-white grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div className="p-6 grid md:grid-cols-2 gap-6">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Subject</p>
-                <p className="text-gray-800 font-medium">{grievance.department}</p>
+                <p className="text-xs text-gray-500 uppercase">Department</p>
+                <p className="font-semibold">{grievance.department}</p>
               </div>
+
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Submitted On</p>
-                <p className="text-gray-800">{new Date(grievance.createdAt).toLocaleDateString()}</p>
+                <p className="text-xs text-gray-500 uppercase">Submitted On</p>
+                <p>{new Date(grievance.createdAt).toLocaleDateString()}</p>
               </div>
+
               <div className="md:col-span-2">
-                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Message</p>
-                <p className="text-gray-700 bg-gray-50 p-3 rounded-lg border border-gray-100">
+                <p className="text-xs text-gray-500 uppercase">Message</p>
+                <p className="mt-1 bg-gray-50 border rounded-lg p-3 text-gray-700">
                   {grievance.message}
                 </p>
               </div>
+
               {grievance.name && (
                 <div>
-                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Submitted By</p>
-                  <p className="text-gray-800">{grievance.name}</p>
+                  <p className="text-xs text-gray-500 uppercase">Citizen Name</p>
+                  <p>{grievance.name}</p>
                 </div>
               )}
             </div>
@@ -135,72 +149,88 @@ export default function TrackGrievance() {
         )}
       </div>
 
-      {/* 2. Authenticated User History Section */}
+      {/* 🧾 HISTORY SECTION */}
       {user ? (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+        <div>
+          <div className="flex justify-between items-center mb-4">
             <div>
-              <h3 className="text-xl font-bold text-gray-800">My Past Grievances</h3>
-              <p className="text-sm text-gray-500">History for +91-{user.phone}</p>
+              <h3 className="text-2xl font-bold">📂 My Grievance History</h3>
+              <p className="text-sm text-gray-500">Mobile: +91-{user.phone}</p>
             </div>
-            <button 
+
+            <button
               onClick={() => fetchUserGrievances(user.phone)}
-              className="text-blue-600 text-sm hover:underline flex items-center gap-1"
+              className="text-sm text-blue-600 hover:underline"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-              Refresh
+              🔄 Refresh
             </button>
           </div>
 
           {loadingHistory ? (
-            <div className="text-center py-10 text-gray-500">Loading history...</div>
-          ) : myGrievances.length > 0 ? (
-            <div className="grid gap-4">
+            <div className="text-center py-10 text-gray-500">
+              ⏳ Fetching your grievances...
+            </div>
+          ) : myGrievances.length ? (
+            <div className="space-y-4">
               {myGrievances.map((item) => (
-                <div key={item._id} className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div
+                  key={item._id}
+                  className="bg-white p-5 rounded-2xl border shadow-sm hover:shadow-md transition flex flex-col sm:flex-row justify-between gap-4"
+                >
                   <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <span className="font-bold text-gray-800">{item.department}</span>
-                      <span className="text-xs text-gray-400">•</span>
-                      <span className="font-mono text-xs text-gray-500">{item.trackingId}</span>
-                    </div>
-                    <p className="text-sm text-gray-600 line-clamp-1 max-w-md">{item.message}</p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {new Date(item.createdAt).toLocaleDateString()} at {new Date(item.createdAt).toLocaleTimeString()}
+                    <p className="font-semibold">{item.department}</p>
+                    <p className="text-xs text-gray-500 font-mono">
+                      {item.trackingId}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1 line-clamp-1">
+                      {item.message}
                     </p>
                   </div>
-                  
-                  <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(item.status)}`}>
+
+                  <div className="flex items-center gap-3">
+                    <span
+                      className={`px-3 py-1 text-xs rounded-full border ${getStatusColor(
+                        item.status
+                      )}`}
+                    >
                       {item.status}
                     </span>
                     <button
                       onClick={() => {
                         setInputId(item.trackingId);
-                        handleSearch(); // Auto-search this ID to show full details above
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        handleSearch();
+                        window.scrollTo({ top: 0, behavior: "smooth" });
                       }}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium border border-blue-100 px-3 py-1 rounded-lg hover:bg-blue-50"
+                      className="text-blue-600 text-sm hover:underline"
                     >
-                      View Details
+                      View
                     </button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-10 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-              <p className="text-gray-500 mb-2">No grievances found for this number.</p>
-              <a href="/submit" className="text-blue-600 font-medium hover:underline">Submit your first grievance</a>
+            <div className="text-center p-10 border border-dashed rounded-2xl bg-gray-50">
+              <p className="text-gray-600">No grievances found yet 📝</p>
+              <a href="/submit" className="text-blue-600 font-medium hover:underline">
+                Submit your first grievance
+              </a>
             </div>
           )}
         </div>
       ) : (
-        <div className="text-center py-8 bg-blue-50 rounded-xl border border-blue-100">
-          <p className="text-blue-800 font-medium mb-2">Want to see your grievance history?</p>
-          <p className="text-sm text-blue-600 mb-4">Log in to view all complaints lodged by your mobile number.</p>
-          <a href="/" className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition">
-            Log In Now
+        <div className="text-center p-8 rounded-2xl bg-blue-50 border border-blue-200">
+          <h3 className="font-bold text-blue-800 mb-2">
+            🔐 Log in to view your grievance history
+          </h3>
+          <p className="text-sm text-blue-700 mb-4">
+            All complaints linked to your mobile number in one place
+          </p>
+          <a
+            href="/"
+            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700"
+          >
+            Login Now
           </a>
         </div>
       )}

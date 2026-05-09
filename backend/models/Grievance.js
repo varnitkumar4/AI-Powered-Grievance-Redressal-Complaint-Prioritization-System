@@ -6,7 +6,10 @@ const grievanceSchema = new Schema({
   email: String,
   mobile: String, // Added mobile to match frontend
   message: String,
-  department: String,
+  department: {
+  type: String,
+  required: true
+},
   address: String,
   
   // NEW: Store array of image file paths/URLs
@@ -24,9 +27,19 @@ const grievanceSchema = new Schema({
     default: "Pending",
     enum: ["Pending", "Processing", "Resolved", "Rejected"]
   },
+
+   aiSummary:  {
+    type: String,
+    default: "No summary available",
+  },
+  aiPriority: {
+    type: String,
+    enum: ["Low", "Medium", "High", "Critical"],
+    default: "Medium",
+  },
   priority: {
     type: String,
-    enum: ['High', 'Medium', 'Low'],
+    enum: ["Low", "Medium", "High", "Critical"],
     default: 'Low',
   },
   createdAt: { type: Date, default: Date.now },

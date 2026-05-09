@@ -37,10 +37,10 @@ function App() {
           {/* Logo Section */}
           <div className="flex items-center gap-3 cursor-pointer">
             {/* Replace with your logo image path */}
-            <img src={logo} alt="LokSeva AI Logo" className="h-10 w-auto object-contain" />
+            <img src={logo} alt="LokSeva AI Logo" className="h-12 md:h-17 lg:h-20 w-auto object-contain" />
             <div className="hidden md:block">
-              <h1 className="text-xl font-bold text-gray-900 tracking-tight leading-none">LokSeva AI</h1>
-              <p className="text-xs text-blue-600 font-medium tracking-wide">We are listening..</p>
+            
+         
             </div>
           </div>
 

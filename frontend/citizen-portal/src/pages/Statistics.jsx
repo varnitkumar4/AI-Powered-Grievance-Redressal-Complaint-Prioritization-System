@@ -25,11 +25,14 @@ function Statistics() {
     fetch(`${API}/api/grievance/stats`)
       .then((res) => res.json())
       .then((stats) => {
-            const resolvedCount =
-  stats.statusCounts.find((s) => s._id === "Resolved")?.count || 0;
 
-const unresolvedCount =
-  stats.statusCounts.find((s) => ["Processing", "Rejected", "Pending"].includes(s._id))?.count || 0;
+const resolvedCount = stats.statusCounts
+  .filter((s) => s._id === "Resolved")
+  .reduce((sum, s) => sum + s.count, 0);
+
+const unresolvedCount = stats.statusCounts
+  .filter((s) => ["Processing", "Rejected", "Pending"].includes(s._id))
+  .reduce((sum, s) => sum + s.count, 0);
 
 setStatusData([
   { name: "Resolved", value: resolvedCount },

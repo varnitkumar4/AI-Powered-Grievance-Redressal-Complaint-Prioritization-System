@@ -1,11 +1,11 @@
-import express from 'express';
-import multer from 'multer';
-import { v2 as cloudinary } from 'cloudinary';
-import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import express from "express";
+import multer from "multer";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 import axios from "axios";
-import Grievance from '../models/Grievance.js';
-import dotenv from 'dotenv';
-
+import Grievance from "../models/Grievance.js";
+import dotenv from "dotenv";
+import { analyzeGrievance } from "../services/aiService.js";
 dotenv.config();
 
 const router = express.Router();
@@ -16,23 +16,27 @@ const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
 if (!cloudName || !apiKey || !apiSecret) {
-  console.error("❌ ERROR: Cloudinary environment variables are missing in .env file!");
-  console.error("   Required: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET");
+  console.error(
+    "❌ ERROR: Cloudinary environment variables are missing in .env file!",
+  );
+  console.error(
+    "   Required: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET",
+  );
 }
 
 cloudinary.config({
   cloud_name: cloudName,
   api_key: apiKey,
-  api_secret: apiSecret
+  api_secret: apiSecret,
 });
 
 // --- 2. Multer Storage Setup (Cloudinary) ---
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: 'grievances',
+    folder: "grievances",
     // 'allowedFormats' is the modern syntax (camelCase), supports jpg, png, etc.
-    allowedFormats: ['jpg', 'png', 'jpeg', 'webp'], 
+    allowedFormats: ["jpg", "png", "jpeg", "webp"],
   },
 });
 
@@ -40,120 +44,185 @@ const upload = multer({ storage: storage });
 
 // --- Helper Functions ---
 const generateTrackingId = () => {
-  const prefix = 'GRV';
-  const random = Math.floor(100000 + Math.random() * 900000); 
+  const prefix = "GRV";
+  const random = Math.floor(100000 + Math.random() * 900000);
   return `${prefix}-${random}`;
 };
 
 const classifyGrievancePriority = async (message) => {
   try {
-    const response = await axios.post("http://localhost:5002/classify-priority", { message });
+    const response = await axios.post(
+      "http://localhost:5002/classify-priority",
+      { message },
+    );
     return response.data.priority || "Low";
   } catch (error) {
     // Don't spam console if ML service is down, just default to Low
-    return "Low"; 
+    return "Low";
   }
 };
 
 // --- Routes ---
+// CREATE GRIEVANCE WITH AI
+router.post("/create", async (req, res) => {
+  try {
+    const { message } = req.body;
 
+    // 🧠 AI CALL
+    const aiResult = await analyzeGrievance(message);
+  //  console.log("AI Analysis Result:", aiResult);
+
+    // ONLY RETURN AI DATA
+    res.status(200).json({
+      success: true,
+      aiSummary: aiResult.summary,
+      aiPriority: aiResult.priority,
+    });
+  } catch (error) {
+    console.error("AI Route Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "AI processing failed",
+    });
+  }
+});
 // 1. Submit Grievance (Wrapper to catch Image Upload Errors safely)
-router.post('/submit', (req, res, next) => {
+router.post(
+  "/submit",
+  (req, res, next) => {
     // Create the middleware function
-    const uploadMiddleware = upload.array('images', 5);
-    
+    const uploadMiddleware = upload.array("images", 5);
+
     // Call it manually to handle errors
     uploadMiddleware(req, res, (err) => {
       if (err) {
         console.error("❌ Image Upload Failed:", err);
         // FORCE JSON RESPONSE
-        return res.status(500).json({ 
-            error: 'Image upload failed. Please check server logs.', 
-            details: err.message || 'Unknown Multer error',
-            hint: 'Verify Cloudinary credentials in .env'
+        return res.status(500).json({
+          error: "Image upload failed. Please check server logs.",
+          details: err.message || "Unknown Multer error",
+          hint: "Verify Cloudinary credentials in .env",
         });
       }
       // If no error, proceed to the async handler below
       next();
     });
-  }, async (req, res) => {
-  try {
-    // 1. Extract fields
-    const { name, email, mobile, message, department, address, code, latitude, longitude } = req.body;
-    
-    // 2. Extract Image URLs from Cloudinary response
-    // If no images were uploaded, req.files will be empty/undefined
-    const imageUrls = req.files ? req.files.map(file => file.path) : [];
+  },
+  async (req, res) => {
+    try {
+      // 1. Extract fields
+      const {
+        name,
+        email,
+        mobile,
+        message,
+        department,
+        address,
+        code,
+        latitude,
+        longitude,
+      } = req.body;
 
-    const trackingId = generateTrackingId();
-    const priority = await classifyGrievancePriority(message);
+      // 2. Extract Image URLs from Cloudinary response
+      // If no images were uploaded, req.files will be empty/undefined
+      const imageUrls = req.files ? req.files.map((file) => file.path) : [];
 
-    // 3. Construct Grievance
-    const grievanceData = {
-      name, 
-      email,
-      mobile,
-      message, 
-      department, 
-      trackingId, 
-      address, 
-      priority,  
-      code,
-      images: imageUrls,
-    };
+      const trackingId = generateTrackingId();
+      const priority = await classifyGrievancePriority(message);
 
-    // 4. Handle Location parsing
-    if (latitude && longitude && latitude !== 'undefined' && longitude !== 'undefined') {
-      const lat = parseFloat(latitude);
-      const lng = parseFloat(longitude);
-      if (!isNaN(lat) && !isNaN(lng)) {
-        grievanceData.location = {
-          latitude: lat,
-          longitude: lng
-        };
+      // 🧠 CALL /create ROUTE
+      const aiResponse = await axios.post(
+        "http://localhost:5000/api/grievance/create",
+        { message },
+      );
+
+    //  console.log("AI DATA:", aiResponse.data);
+
+      // 3. Construct Grievance
+      const grievanceData = {
+        name,
+        email,
+        mobile,
+        message,
+        department,
+        trackingId,
+        address,
+        priority,
+        code,
+        images: imageUrls,
+          aiSummary: aiResponse.data.aiSummary,
+  aiPriority: aiResponse.data.aiPriority,
+
+  priority: aiResponse.data.aiPriority,
+      };
+
+      // 4. Handle Location parsing
+      if (
+        latitude &&
+        longitude &&
+        latitude !== "undefined" &&
+        longitude !== "undefined"
+      ) {
+        const lat = parseFloat(latitude);
+        const lng = parseFloat(longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          grievanceData.location = {
+            latitude: lat,
+            longitude: lng,
+          };
+        }
       }
-    }
 
-    const grievance = new Grievance(grievanceData);
-    await grievance.save();
+      const grievance = new Grievance(grievanceData);
+      await grievance.save();
 
-    res.status(201).json({ 
-      message: 'Grievance submitted successfully', 
-      trackingId: grievance.trackingId 
-    });
+    res.status(201).json({
+  message: 'Grievance submitted successfully',
 
-  } catch (err) {
-    console.error("❌ Error in /submit handler:", err);
-    res.status(500).json({ error: 'Failed to submit grievance', details: err.message });
-  }
+  trackingId: grievance.trackingId,
+
+  aiSummary: grievance.aiSummary,
+  aiPriority: grievance.aiPriority,
 });
+    } catch (err) {
+      console.error("❌ Error in /submit handler:", err);
+      res
+        .status(500)
+        .json({ error: "Failed to submit grievance", details: err.message });
+    }
+  },
+);
 
 // 2. Track Single Grievance (Public Search)
-router.get('/track/:trackingId', async (req, res) => {
+router.get("/track/:trackingId", async (req, res) => {
   try {
-    const grievance = await Grievance.findOne({ trackingId: req.params.trackingId });
+    const grievance = await Grievance.findOne({
+      trackingId: req.params.trackingId,
+    });
     if (!grievance) {
-      return res.status(404).json({ error: 'Grievance not found' });
+      return res.status(404).json({ error: "Grievance not found" });
     }
     res.json(grievance);
   } catch (err) {
-    res.status(500).json({ error: 'Error retrieving grievance' });
+    res.status(500).json({ error: "Error retrieving grievance" });
   }
 });
 
 // 3. NEW: User History (Fetch all grievances by mobile number)
-router.get('/user/:mobile', async (req, res) => {
+router.get("/user/:mobile", async (req, res) => {
   try {
     const { mobile } = req.params;
-    if (!mobile) return res.status(400).json({ error: "Mobile number required" });
+    if (!mobile)
+      return res.status(400).json({ error: "Mobile number required" });
 
     // Find grievances matching the mobile number, sort by newest first
     const grievances = await Grievance.find({ mobile }).sort({ createdAt: -1 });
-    
+
     res.json({ grievanceList: grievances });
   } catch (err) {
     console.error("Error fetching user history:", err);
-    res.status(500).json({ error: 'Error retrieving user history' });
+    res.status(500).json({ error: "Error retrieving user history" });
   }
 });
 
