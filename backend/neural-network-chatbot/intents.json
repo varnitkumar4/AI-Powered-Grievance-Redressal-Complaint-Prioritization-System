@@ -1,86 +1,329 @@
-{"intents":
-[
-{"tags": "greetings",
-"patterns": ["hi", "hello", "hey", "how are you", "what's up?"],
-"responses": ["Hi!", "Hello!", "Hey!", "Hey, I am fine", "What can I do for you?"]},
+{
+  "intents": [
 
-{
-    "tags": "Water Supply",
-    "patterns": [
-      "no water in my area",
-      "water supply issue",
-      "when will water come",
-      "water not available",
-      "facing water shortage"
-    ],
-    "responses": [
-      "I am writing to express my concern regarding the ongoing water supply issue in our area. For the past several days, there has been no water supply, which is causing severe inconvenience to the residents. Basic daily activities such as cooking, cleaning, and sanitation have become extremely difficult due to the lack of water. This issue is affecting the health and hygiene of the community, especially for families with children and elderly members. We have tried to manage with stored water, but it is no longer sufficient. I kindly request the concerned authorities to take immediate action to resolve the problem and ensure a regular and uninterrupted water supply at the earliest. Thank you for your attention to this urgent matter."
-    ]
-  },
-  {
-    "tags": "Garbage Collection",
-    "patterns": [
-      "garbage not picked up",
-      "trash not collected",
-      "waste collection delay",
-      "no garbage truck",
-      "area is dirty"
-    ],
-    "responses": [
-      "This is to bring to your attention that garbage has not been collected in our locality for several days, resulting in an unhygienic environment. Kindly ensure timely waste collection."
-    ]
-  },
-  {
-    "tags": "Street Light",
-    "patterns": [
-      "street light not working",
-      "dark streets",
-      "need street light",
-      "light flickering",
-      "no light at night"
-    ],
-    "responses": [
-      "I wish to report that the street lights in our area are not functioning, leading to darkness during the night and potential safety concerns. Please address this issue at the earliest."
-    ]
-  },
-  {
-    "tags": "Road Damage",
-    "patterns": [
-      "road is broken",
-      "potholes everywhere",
-      "damaged road",
-      "need road repair",
-      "unsafe roads"
-    ],
-    "responses": [
-      "I would like to file a grievance regarding the poor condition of roads in our locality. There are multiple potholes making commuting difficult and dangerous. Kindly take necessary action."
-    ]
-  },
-  {
-    "tags": "Drainage Problem",
-    "patterns": [
-      "drain blocked",
-      "sewage problem",
-      "dirty water on roads",
-      "bad smell from drain",
-      "overflowing drain"
-    ],
-    "responses": [
-      "There is a serious drainage issue in our area due to blocked or overflowing drains, causing stagnant water and foul smell. Please resolve this at the earliest."
-    ]
-  },
-{
-  "tags": "Electricity Problem",
+    {
+      "tags": "greetings",
+      "patterns": [
+        "hi",
+        "hello",
+        "hey",
+        "how are you",
+        "good morning",
+        "good evening",
+        "what's up"
+      ],
+      "responses": [
+        "Hello! How can I assist you today?",
+        "Hi! Please tell me your grievance.",
+        "Hey! What issue are you facing?"
+      ]
+    },
+
+    {
+      "tags": "thanks",
+      "patterns": [
+        "thanks",
+        "thank you",
+        "thx",
+        "thanks a lot"
+      ],
+      "responses": [
+        "You're welcome!",
+        "Happy to help!",
+        "Glad I could assist you."
+      ]
+    },
+
+    {
+      "tags": "goodbye",
+      "patterns": [
+        "bye",
+        "goodbye",
+        "see you",
+        "exit"
+      ],
+      "responses": [
+        "Goodbye!",
+        "Take care!",
+        "Have a great day!"
+      ]
+    },
+
+    {
+      "tags": "complaint_status",
+      "patterns": [
+        "check complaint status",
+        "track complaint",
+        "status of complaint",
+        "complaint progress"
+      ],
+      "responses": [
+        "Please provide your complaint ID to check the status.",
+        "You can track your complaint using the complaint number."
+      ]
+    },
+
+    {
+      "tags": "Water Supply",
+      "patterns": [
+        "no water in my area",
+        "water supply issue",
+        "water not available",
+        "water shortage",
+        "dirty water",
+        "water leakage"
+      ],
+      "responses": [
+        "We understand your concern regarding the water supply issue. Your complaint has been registered and will be forwarded to the concerned department."
+      ]
+    },
+
+    {
+      "tags": "Electricity Problem",
+      "patterns": [
+        "power cut",
+        "no electricity",
+        "voltage fluctuation",
+        "electricity issue",
+        "transformer problem"
+      ],
+      "responses": [
+        "The electricity issue has been recorded and marked as high priority."
+      ]
+    },
+
+    {
+      "tags": "Garbage Collection",
+      "patterns": [
+        "garbage not picked up",
+        "trash not collected",
+        "dirty area",
+        "waste issue"
+      ],
+      "responses": [
+        "Your garbage collection complaint has been forwarded to the sanitation department."
+      ]
+    },
+
+    {
+      "tags": "Street Light",
+      "patterns": [
+        "street light not working",
+        "dark streets",
+        "light issue",
+        "no street light"
+      ],
+      "responses": [
+        "Street light maintenance team has been notified."
+      ]
+    },
+
+    {
+      "tags": "Road Damage",
+      "patterns": [
+        "road broken",
+        "potholes",
+        "road damage",
+        "unsafe road"
+      ],
+      "responses": [
+        "Road repair complaint has been registered successfully."
+      ]
+    },
+
+    {
+      "tags": "Drainage Problem",
+      "patterns": [
+        "drain blocked",
+        "sewage issue",
+        "overflowing drain",
+        "dirty water on road"
+      ],
+      "responses": [
+        "Drainage department has been informed regarding the issue."
+      ]
+    },
+
+    {
+      "tags": "Internet Issue",
+      "patterns": [
+        "internet not working",
+        "wifi problem",
+        "network issue",
+        "slow internet"
+      ],
+      "responses": [
+        "Your internet connectivity complaint has been noted."
+      ]
+    },
+
+    {
+      "tags": "Hospital Issue",
+      "patterns": [
+        "hospital problem",
+        "doctor unavailable",
+        "medical emergency",
+        "hospital staff issue"
+      ],
+      "responses": [
+        "Hospital-related complaint has been marked urgent."
+      ]
+    },
+
+    {
+      "tags": "Traffic Problem",
+      "patterns": [
+        "traffic jam",
+        "signal not working",
+        "heavy traffic",
+        "road blocked"
+      ],
+      "responses": [
+        "Traffic control department has been informed."
+      ]
+    },
+
+    {
+      "tags": "Noise Pollution",
+      "patterns": [
+        "too much noise",
+        "loud music",
+        "noise pollution",
+        "disturbing sound"
+      ],
+      "responses": [
+        "Noise pollution complaint has been registered."
+      ]
+    },
+
+    {
+      "tags": "Corruption Complaint",
+      "patterns": [
+        "bribe demand",
+        "corruption issue",
+        "government officer asking money",
+        "illegal payment"
+      ],
+      "responses": [
+        "Your corruption complaint has been securely recorded."
+      ]
+    },
+
+    {
+      "tags": "Cyber Crime",
+      "patterns": [
+        "online fraud",
+        "cyber crime",
+        "account hacked",
+        "scam complaint"
+      ],
+      "responses": [
+        "Cyber crime complaint has been marked critical."
+      ]
+    },
+
+    {
+      "tags": "Women Safety",
+      "patterns": [
+        "harassment complaint",
+        "women safety issue",
+        "unsafe area for women",
+        "stalking complaint"
+      ],
+      "responses": [
+        "Women safety complaint has been prioritized immediately."
+      ]
+    },
+
+    {
+      "tags": "Public Toilet",
+      "patterns": [
+        "dirty public toilet",
+        "toilet not cleaned",
+        "public washroom issue"
+      ],
+      "responses": [
+        "Public sanitation department has been notified."
+      ]
+    },
+
+    {
+      "tags": "Gas Leakage",
+      "patterns": [
+        "gas leakage",
+        "gas smell",
+        "pipeline leakage"
+      ],
+      "responses": [
+        "Emergency gas leakage complaint registered. Please stay safe and contact emergency services if needed."
+      ]
+    },
+
+    {
+      "tags": "Flood Issue",
+      "patterns": [
+        "flood in area",
+        "waterlogging",
+        "heavy water on roads"
+      ],
+      "responses": [
+        "Flood and waterlogging issue has been marked high priority."
+      ]
+    },
+
+    {
+      "tags": "Tree Fallen",
+      "patterns": [
+        "tree fallen",
+        "tree blocking road",
+        "dangerous tree"
+      ],
+      "responses": [
+        "Municipal emergency team has been informed regarding the fallen tree."
+      ]
+    },
+
+    {
+      "tags": "Animal Issue",
+      "patterns": [
+        "stray dog issue",
+        "animal problem",
+        "dead animal on road"
+      ],
+      "responses": [
+        "Animal control department has been informed."
+      ]
+    },
+
+    {
+      "tags": "Priority Complaint",
+      "patterns": [
+        "urgent complaint",
+        "emergency issue",
+        "high priority complaint"
+      ],
+      "responses": [
+        "Your complaint has been marked as HIGH PRIORITY and forwarded immediately."
+      ]
+    },
+
+    {
+  "tags": "help",
   "patterns": [
-    "power cut",
-    "no electricity",
-    "voltage fluctuation",
-    "electricity issue",
-    "frequent power outage"
+    "help me",
+    "can you help me",
+    "i need help",
+    "please help",
+    "you can help me",
+    "support needed",
+    "assist me"
   ],
   "responses": [
-    "There are frequent power cuts and voltage fluctuations in our locality. It is affecting daily life and damaging appliances. Please resolve the electricity issue urgently."
-    ]
-   }
+    "Yes, I can help you. Please describe your complaint.",
+    "Sure! Tell me the issue you are facing.",
+    "I am here to assist you with your grievance."
+  ]
+}
+
   ]
 }
